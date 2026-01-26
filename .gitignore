@@ -1,0 +1,35 @@
+# Brewfile lock file
+Brewfile.lock.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Backup files
+*.backup
+*.bak
+*~
+
+# Secrets - never commit!
+.secrets
+*.secrets
+configs/.secrets
+
+# Logs
+*.log
+
+# Temporary files
+.tmp/
+tmp/
+erl_crash.dump
+
+# Vim/Neovim temporary files
+*.swp
+*.swo
+*.swn
+*.un~
+
+# Neovim/LazyVim generated files
+dotfiles/nvim/lazy-lock.json
+dotfiles/nvim/.luarc.json
