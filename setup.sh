@@ -143,17 +143,33 @@ install_homebrew() {
 }
 
 install_brewfile() {
-    print_step "Installing packages from Brewfile..."
+    local profile=$1
+    print_step "Installing packages from Brewfiles..."
 
-    if [[ ! -f "$SCRIPT_DIR/.Brewfile" ]]; then
-        print_error "Brewfile not found at $SCRIPT_DIR/.Brewfile"
+    # Install base packages
+    local base_brewfile="$SCRIPT_DIR/Brewfile"
+    if [[ -f "$base_brewfile" ]]; then
+        print_info "Installing base packages from Brewfile..."
+        brew bundle --file="$base_brewfile" --verbose
+        print_success "Base packages installed."
+    else
+        print_error "Base Brewfile not found at $base_brewfile"
         exit 1
     fi
 
-    print_info "This will install all packages, apps, and VSCode extensions..."
-    brew bundle --file="$SCRIPT_DIR/.Brewfile" --verbose
+    # Install profile-specific packages
+    if [[ -n "$profile" ]]; then
+        local profile_brewfile="$SCRIPT_DIR/Brewfile.$profile"
+        if [[ -f "$profile_brewfile" ]]; then
+            print_info "Installing $profile packages from $profile_brewfile..."
+            brew bundle --file="$profile_brewfile" --verbose
+            print_success "$profile packages installed."
+        else
+            print_warning "Profile Brewfile for '$profile' not found at $profile_brewfile. Skipping."
+        fi
+    fi
 
-    print_success "Brewfile packages installed"
+    print_success "All Brewfile packages installed"
 }
 
 setup_oh_my_zsh() {
@@ -417,8 +433,8 @@ setup_macos_defaults() {
 
         # Enable key repeat (for Vim)
         defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
-        defaults write NSGlobalDomain KeyRepeat -int 1
-        defaults write NSGlobalDomain InitialKeyRepeat -int 10
+        defaults write NSGlobalDomain KeyRepeat -int 5
+        defaults write NSGlobalDomain InitialKeyRepeat -int 30
 
         # Restart Finder to apply changes
         killall Finder
@@ -507,6 +523,21 @@ main() {
     echo -e "${YELLOW}Location: $SCRIPT_DIR${NC}"
     echo ""
 
+    # Profile selection from command-line argument
+    local profile=""
+    if [[ "$1" == "--work" ]]; then
+        profile="work"
+        print_info "Using 'work' profile."
+    elif [[ "$1" == "--private" ]]; then
+        profile="private"
+        print_info "Using 'private' profile."
+    elif [[ -n "$1" ]]; then
+        print_error "Invalid argument '$1'. Use '--work' or '--private'."
+        exit 1
+    else
+        print_info "No profile specified. Installing base packages only."
+    fi
+
     if ! ask_confirmation "Continue with installation?"; then
         print_warning "Installation cancelled"
         exit 0
@@ -517,7 +548,7 @@ main() {
     # Run installation steps
     install_xcode_tools
     install_homebrew
-    install_brewfile
+    install_brewfile "$profile"
     setup_oh_my_zsh
     install_zsh_lazyload
     link_dotfiles          # ← NEW: Replaces individual setup functions

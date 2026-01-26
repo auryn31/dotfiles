@@ -33,9 +33,25 @@ echo -e "${BOLD}${CYAN}  🔄 Updating Development Environment${NC}"
 echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
+# Profile selection from command-line argument
+profile=""
+if [[ "$1" == "--work" ]]; then
+    profile="work"
+    echo -e "${INFO} Using 'work' profile for Brewfile sync."
+elif [[ "$1" == "--private" ]]; then
+    profile="private"
+    echo -e "${INFO} Using 'private' profile for Brewfile sync."
+elif [[ -n "$1" ]]; then
+    echo -e "${RED}✗${NC} Invalid argument '$1'. Use '--work' or '--private'."
+    exit 1
+else
+    echo -e "${YELLOW}${WARNING}${NC} No profile specified. Brewfile sync will only use the base Brewfile."
+fi
+echo ""
+
 # Update this repository (if it's a git repo)
 if [[ -d "$SCRIPT_DIR/.git" ]]; then
-    echo -e "${BOLD}${BLUE}${ARROW}${NC} ${BOLD}Updating Brew repository...${NC}"
+    echo -e "${BOLD}${BLUE}${ARROW}${NC} ${BOLD}Updating dotfiles repository...${NC}"
 
     # Check for uncommitted changes
     if [[ -n $(git -C "$SCRIPT_DIR" status --porcelain) ]]; then
@@ -104,13 +120,32 @@ brew upgrade
 echo -e "${GREEN}${SUCCESS}${NC} Packages upgraded"
 echo ""
 
-# Sync with Brewfile (remove packages not in Brewfile)
-if [[ -f "$SCRIPT_DIR/.Brewfile" ]]; then
-    echo -e "${BOLD}${BLUE}${ARROW}${NC} ${BOLD}Syncing with Brewfile (cleanup mode)...${NC}"
-    echo -e "${YELLOW}${INFO}${NC} This will uninstall packages not listed in .Brewfile"
+# Sync with Brewfiles
+base_brewfile="$SCRIPT_DIR/Brewfile"
+if [[ -f "$base_brewfile" ]]; then
+    echo -e "${BOLD}${BLUE}${ARROW}${NC} ${BOLD}Syncing with Brewfiles...${NC}"
+
+    temp_brewfile=$(mktemp)
+    # Ensure temp file is cleaned up on exit
+    trap 'rm -f "$temp_brewfile"' EXIT
+
+    cat "$base_brewfile" > "$temp_brewfile"
+
+    if [[ -n "$profile" ]]; then
+        profile_brewfile="$SCRIPT_DIR/Brewfile.$profile"
+        if [[ -f "$profile_brewfile" ]]; then
+            echo "" >> "$temp_brewfile" # add newline
+            cat "$profile_brewfile" >> "$temp_brewfile"
+            echo -e "${INFO} Including packages from Brewfile.$profile"
+        else
+            echo -e "${YELLOW}${WARNING}${NC} Profile Brewfile for '$profile' not found at $profile_brewfile. Skipping."
+        fi
+    fi
+
+    echo -e "${YELLOW}${INFO}${NC} This will uninstall packages not listed in your selected Brewfiles."
 
     # Run cleanup and capture output
-    CLEANUP_OUTPUT=$(brew bundle cleanup --file="$SCRIPT_DIR/.Brewfile" --force 2>&1)
+    CLEANUP_OUTPUT=$(brew bundle cleanup --file="$temp_brewfile" --force 2>&1)
 
     # Check if anything was removed
     if echo "$CLEANUP_OUTPUT" | grep -q "Uninstalling"; then
@@ -124,10 +159,12 @@ if [[ -f "$SCRIPT_DIR/.Brewfile" ]]; then
     echo ""
 
     # Install any missing packages
-    echo -e "${BOLD}${BLUE}${ARROW}${NC} ${BOLD}Installing missing packages from Brewfile...${NC}"
-    brew bundle --file="$SCRIPT_DIR/.Brewfile"
+    echo -e "${BOLD}${BLUE}${ARROW}${NC} ${BOLD}Installing missing packages from Brewfiles...${NC}"
+    brew bundle install --file="$temp_brewfile" --verbose
     echo -e "${GREEN}${SUCCESS}${NC} Brewfile packages synchronized"
     echo ""
+
+    # No need to manually remove, trap will handle it
 fi
 
 # Update Oh My Zsh
@@ -193,7 +230,7 @@ if [[ -d "$HOME/.nvm" ]]; then
                     ;;
             esac
         else
-            echo -e "${GREEN}${SUCCESS}${NC} Node.js LTS is up to date: $INSTALLED_LTS"
+            echo -e "${GREEN}${SUCCESS}${NC} Node.s LTS is up to date: $INSTALLED_LTS"
         fi
     fi
     echo ""
@@ -211,7 +248,7 @@ echo -e "${BOLD}${GREEN}Update Complete!${NC}"
 echo -e "${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "${BOLD}What was updated:${NC}"
-echo -e "  ${GREEN}${SUCCESS}${NC} Brew repository (if changes were available)"
+echo -e "  ${GREEN}${SUCCESS}${NC} dotfiles repository (if changes were available)"
 echo -e "  ${GREEN}${SUCCESS}${NC} Homebrew and all packages"
 echo -e "  ${GREEN}${SUCCESS}${NC} Oh My Zsh and custom plugins"
 echo -e "  ${GREEN}${SUCCESS}${NC} Neovim plugins"

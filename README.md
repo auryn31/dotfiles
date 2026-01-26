@@ -14,9 +14,9 @@ This repository contains a complete automated setup for your Mac development env
 ## 📋 Quick Reference
 
 ```bash
-./setup.sh    # First-time setup (run once)
-./update.sh   # Update everything (run regularly)
-./doctor.sh   # Check installation health
+./setup.sh [--work|--private]    # First-time setup (run once)
+./update.sh [--work|--private]   # Update everything (run regularly)
+./doctor.sh                      # Check installation health
 ```
 
 ## 🚀 Quick Start (Automated Setup)
@@ -30,6 +30,11 @@ cd ~/coding/Brew
 
 # Run the setup script
 ./setup.sh
+
+**Note:** You can specify a profile to install additional packages:
+- `./setup.sh --work` to install packages from `Brewfile` and `Brewfile.work`.
+- `./setup.sh --private` to install packages from `Brewfile` and `Brewfile.private`.
+If no profile is specified, only packages from `Brewfile` will be installed.
 ```
 
 **Important:** Clone to `~/coding/Brew` (or another permanent location). The repository must remain in place because all configs are symlinked from `dotfiles/` to your home directory.
@@ -136,14 +141,15 @@ brew bundle --file=.Brewfile --cleanup
 To update all components of your development environment:
 
 ```bash
-./update.sh
+./update.sh [--work|--private]
 ```
+**Note:** Specify `--work` or `--private` to update packages for a specific profile (from `Brewfile` and `Brewfile.work` or `Brewfile.private`). If no profile is specified, only packages from the base `Brewfile` will be considered.
 
 This will:
 - Pull latest changes from this repository
 - Verify all symlinks are properly configured
 - Update Homebrew and all packages
-- **Remove packages NOT in Brewfile** (keeps everything in sync)
+- **Remove packages NOT in the selected Brewfiles** (keeps everything in sync)
 - Update Oh My Zsh and custom plugins
 - Update Neovim plugins
 - Update SDKMAN
@@ -203,7 +209,9 @@ Use this to diagnose issues after installation or updates.
 
 ```
 .
-├── .Brewfile              # Homebrew package definitions
+├── Brewfile               # Base Homebrew package definitions
+├── Brewfile.work          # Work-specific Homebrew package definitions
+├── Brewfile.private       # Private-specific Homebrew package definitions
 ├── .gitignore             # Git ignore rules
 ├── dotfiles/              # All configuration files (symlinked to home)
 │   ├── nvim/              # Neovim/LazyVim configuration
