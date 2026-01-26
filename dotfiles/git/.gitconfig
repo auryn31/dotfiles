@@ -2,8 +2,8 @@
 # This file will be copied to ~/.gitconfig during setup
 
 [user]
-	name = Your Name
-	email = your.email@example.com
+	name = Auryn
+	email = auryn31@gmx.de
 
 [core]
 	editor = nvim
