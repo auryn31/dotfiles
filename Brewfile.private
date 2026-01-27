@@ -1,7 +1,14 @@
+brew "ffmpeg"
+brew "hugo"
+brew "yt-dlp"
 cask "autodesk-fusion"
 cask "creality-print"
 cask "kicad"
 cask "nvidia-geforce-now"
+cask "nordvpn"
+cask "obsidian"
 cask "spotify"
 cask "steam"
 cask "whatsapp"
+mas "DaVinci Resolve", id: 571213070
+mas "Tailscale", id: 1475387142

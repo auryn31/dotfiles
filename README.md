@@ -25,8 +25,8 @@ For a fully automated installation of everything:
 
 ```bash
 # Clone this repository to a persistent location
-git clone https://github.com/auryn31/Brew.git ~/coding/Brew
-cd ~/coding/Brew
+git clone https://github.com/auryn31/dotfiles.git ~/coding/dotfiles
+cd ~/coding/dotfiles
 
 # Run the setup script
 ./setup.sh
@@ -37,7 +37,7 @@ cd ~/coding/Brew
 If no profile is specified, only packages from `Brewfile` will be installed.
 ```
 
-**Important:** Clone to `~/coding/Brew` (or another permanent location). The repository must remain in place because all configs are symlinked from `dotfiles/` to your home directory.
+**Important:** Clone to `~/coding/dotfiles` (or another permanent location). The repository must remain in place because all configs are symlinked from `dotfiles/` to your home directory.
 
 This single command will:
 - Install Xcode Command Line Tools
@@ -117,7 +117,7 @@ brew bundle --file=.Brewfile
 
 Or specify the full path:
 ```bash
-brew bundle --file=/Users/auryn/coding/Brew/.Brewfile
+brew bundle --file=/Users/auryn/coding/dotfiles/.Brewfile
 ```
 
 ### Dry Run (Check what would be installed)
@@ -259,7 +259,7 @@ The recommended workflow is:
 
 ```bash
 # 1. Edit config in this repository
-cd ~/coding/Brew
+cd ~/coding/dotfiles
 nvim dotfiles/zsh/.zshrc
 
 # 2. Test your changes (they're already active via symlink!)
@@ -420,7 +420,7 @@ brew update && brew upgrade
 
 # Or manually fix the symlink
 rm ~/.config/nvim
-ln -s ~/coding/Brew/dotfiles/nvim ~/.config/nvim
+ln -s ~/coding/dotfiles/dotfiles/nvim ~/.config/nvim
 ```
 
 ### NVM/Node Issues
@@ -452,7 +452,7 @@ sdk install java 21.0.1-tem
 
 ## Notes
 
-- **Repository Location**: Keep this repo at `~/coding/Brew` (or update paths if moved) - configs are symlinked from here
+- **Repository Location**: Keep this repo at `~/coding/dotfiles` (or update paths if moved) - configs are symlinked from here
 - **Symlinked Configs**: All dotfiles are symlinked, not copied - changes in this repo are immediately reflected
 - **NVM**: Node versions are managed via nvm (in `~/.nvm`), not Homebrew, allowing multiple versions
 - **SDKMAN**: Java/JVM tools managed via SDKMAN, Gradle/Maven available via Homebrew
