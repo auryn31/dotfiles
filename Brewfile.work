@@ -1,1 +1,3 @@
-cask "postman"
+brew "podman"
+cask "rectangle"
+cask "zettlr"
