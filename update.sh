@@ -49,33 +49,6 @@ else
 fi
 echo ""
 
-# Update this repository (if it's a git repo)
-if [[ -d "$SCRIPT_DIR/.git" ]]; then
-    echo -e "${BOLD}${BLUE}${ARROW}${NC} ${BOLD}Updating dotfiles repository...${NC}"
-
-    # Check for uncommitted changes
-    if [[ -n $(git -C "$SCRIPT_DIR" status --porcelain) ]]; then
-        echo -e "${YELLOW}${WARNING}${NC} You have uncommitted changes in this repository:"
-        git -C "$SCRIPT_DIR" status --short
-        echo ""
-        read -p "$(echo -e ${CYAN}Stash changes and pull updates? [y/N]: ${NC})" yn
-        case $yn in
-            [Yy]* )
-                git -C "$SCRIPT_DIR" stash
-                git -C "$SCRIPT_DIR" pull --rebase
-                echo -e "${GREEN}${SUCCESS}${NC} Repository updated"
-                echo -e "${YELLOW}${INFO}${NC} Your changes are stashed. Run 'git stash pop' to restore them."
-                ;;
-            * )
-                echo -e "${YELLOW}${WARNING}${NC} Skipping repository update"
-                ;;
-        esac
-    else
-        git -C "$SCRIPT_DIR" pull --rebase
-        echo -e "${GREEN}${SUCCESS}${NC} Repository updated"
-    fi
-    echo ""
-fi
 
 # Verify symlinks are still valid
 echo -e "${BOLD}${BLUE}${ARROW}${NC} ${BOLD}Verifying dotfile symlinks...${NC}"
@@ -145,7 +118,7 @@ if [[ -f "$base_brewfile" ]]; then
     echo -e "${YELLOW}${INFO}${NC} This will uninstall packages not listed in your selected Brewfiles."
 
     # Run cleanup and capture output
-    CLEANUP_OUTPUT=$(brew bundle cleanup --file="$temp_brewfile" --force 2>&1)
+    CLEANUP_OUTPUT=$(brew bundle cleanup --file="$temp_brewfile" --force 2>&1 || true)
 
     # Check if anything was removed
     if echo "$CLEANUP_OUTPUT" | grep -q "Uninstalling"; then

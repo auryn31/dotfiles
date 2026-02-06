@@ -9,8 +9,6 @@ ZSH_THEME="Eastwood"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 plugins=(
   git
-  zsh-syntax-highlighting
-  zsh-autosuggestions
   brew
   docker
   zsh-lazyload
